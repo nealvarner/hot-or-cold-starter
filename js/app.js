@@ -1,43 +1,60 @@
 var guessMe;
+var lastGuess;
+var count;
 
-$(document).ready(function(){
-    guessMe = $('#guessButton').data('guessMe');
+$(document).ready(function() {
     if (!guessMe) {
-        guessMe = $('#guessButton').data('guessMe', genRandomInt(0, 100));
+        guessMe = genRandomInt(0, 100);
     }
 	/*--- Display information modal box ---*/
-  	$(".what").click(function(){
+  	$(".what").click(function() {
     	$(".overlay").fadeIn(1000);
 
   	});
 
   	/*--- Hide information modal box ---*/
-  	$("a.close").click(function(){
+  	$("a.close").click(function() {
   		$(".overlay").fadeOut(1000);
   	});
 
+    $('.new').click(function() {
+        guessMe = startGame();
+    });
+
     //process a guess
-    $('#guessButton').click(function(){
+    $('#guessButton').click(function(e) {
         //get userGuess
         userGuess = $('#userGuess').val();
         console.log(userGuess);
-        response = process_guess(userGuess, lastGuess, guessMe);
-        //set last guess
-        lastGuess = userGuess;
+        if (!isNaN(parseInt(userGuess))) {
+            response = process_guess(userGuess, lastGuess, guessMe);
+            $('#feedback').text(response);
+            //set last guess
+            lastGuess = userGuess;
+            count = $('#count').text();
+            count++;
+            $('#count').text(count);
 
-        var count = $('#count').val();
-        $('#count').text(count++);
+            $('#guessList').append('<li>'+userGuess+'</li>');
+        }
+        else {
+            alert("please enter a number")
+        }
+        $('#userGuess').val('');
+        e.preventDefault();
     });
 });
 
-// function startGame() {
-//     // generate random number to be guessed
-//     guessMe = getRandomInt(0, 100);
-//     //set text input to blank
-//     userGuess = $('#userGuess').val('');
-
-//     return guessMe;
-// }
+function startGame() {
+    // generate random number to be guessed
+    var guessMe = genRandomInt(0, 100);
+    //set text input to blank
+    $('#userGuess').val('');
+    $('#guessList').empty();
+    $('#feedback').text("Make you Guess!");
+    $('#count').text(0)
+    return guessMe;
+}
 
 
 
@@ -48,14 +65,15 @@ function genRandomInt(min, max) {
 function process_guess(userGuess, lastGuess, guessMe) {
     var response = '';
     //change display to respond with hot or cold
+    // freezing, really cold,
     if (userGuess < guessMe) {
-        response = 'less than';
+        response = 'Too Low!';
     }
     else if (userGuess > guessMe) {
-        response = 'greater than';
+        response = 'Too High!';
     }
     else {
-        response = 'correct';
+        response = 'Right On!';
     }
     return response;
 }
